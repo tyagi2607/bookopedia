@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Coinbook</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <h1>Welcome to Coinbook</h1>
+    <p>Your crypto dashboard starts here 🚀</p>
+
+    <h2>Current Bitcoin Price</h2>
+    {% if price %}
+        <p><strong>${{ price }}</strong></p>
+    {% else %}
+        <p>Sorry, price data is not available right now.</p>
+    {% endif %}
+</body>
+</html>
