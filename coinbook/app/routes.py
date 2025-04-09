@@ -5,6 +5,6 @@ main = Blueprint("main", __name__)
 
 @main.route("/")
 def home():
-    btc_price = get_btc_price()
-    return render_template("index.html", price=btc_price)
+    btc = get_btc_data()
+    return render_template("index.html", btc=btc)
 
