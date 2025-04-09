@@ -8,11 +8,21 @@
     <h1>Welcome to Coinbook</h1>
     <p>Your crypto dashboard starts here 🚀</p>
 
-    <h2>Current Bitcoin Price</h2>
-    {% if price %}
-        <p><strong>${{ price }}</strong></p>
+    <h2>Bitcoin (BTC)</h2>
+
+    {% if btc %}
+        <ul>
+            <li><strong>Price:</strong> ${{ "{:,.2f}".format(btc.price) }}</li>
+            <li><strong>Market Cap:</strong> ${{ "{:,.0f}".format(btc.market_cap) }}</li>
+            <li><strong>24h Volume:</strong> ${{ "{:,.0f}".format(btc.volume) }}</li>
+            <li><strong>24h Change:</strong>
+                <span style="color: {{ 'green' if btc.change_24h >= 0 else 'red' }}">
+                    {{ "{:+.2f}".format(btc.change_24h) }}%
+                </span>
+            </li>
+        </ul>
     {% else %}
-        <p>Sorry, price data is not available right now.</p>
+        <p>⚠️ Unable to load Bitcoin data. Try again later.</p>
     {% endif %}
 </body>
 </html>
