@@ -11,3 +11,60 @@ ul {
 li {
     margin: 0.3rem 0;
 }
+
+/* === Metric Cards Layout === */
+
+.metrics-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+    margin-top: 2rem;
+  }
+  
+  /* Responsive for larger screens */
+  @media (min-width: 768px) {
+    .metrics-grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+  
+  .metric-card {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 1.2rem;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    transition: transform 0.2s ease;
+  }
+  
+  .metric-card:hover {
+    transform: translateY(-4px);
+  }
+  
+  .metric-label {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #4a5568;
+    margin-bottom: 0.5rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  
+  .metric-value {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #2d3748;
+  }
+  
+  .metric-subtext {
+    font-size: 0.85rem;
+    margin-top: 0.25rem;
+  }
+  
+  .metric-subtext.green {
+    color: #38a169; /* green */
+  }
+  
+  .metric-subtext.red {
+    color: #e53e3e; /* red */
+  }

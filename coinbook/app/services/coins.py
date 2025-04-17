@@ -15,7 +15,10 @@ def get_btc_data():
             "price": data["current_price"],
             "market_cap": data["market_cap"],
             "volume": data["total_volume"],
-            "change_24h": data["price_change_percentage_24h"]
+            "change_24h": data["price_change_percentage_24h"],
+            "change_7d": data["price_change_percentage_7d_in_currency"],
+            "supply": data["circulating_supply"],
+            "max_supply": data["max_supply"]
         }
     except (requests.RequestException, IndexError, KeyError):
         return None
