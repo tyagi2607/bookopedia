@@ -10,58 +10,58 @@
 
     <h2>Bitcoin (BTC)</h2>
     {% if btc %}
-    <section class="metrics-grid">
-        <!-- Price -->
-        <div class="metric-card">
-          <div class="metric-label">Price</div>
-          <div class="metric-value">${{ "{:,.2f}".format(btc.price) if btc.price is not none else "N/A" }}</div>
-          <div class="metric-subtext {{ 'green' if btc.change_7d >= 0 else 'red' }}">
-            {{ "{:+.2f}".format(btc.change_7d) }}% from 7d
+      <section class="metrics-grid">
+          <!-- Price -->
+          <div class="metric-card">
+            <div class="metric-label">Price</div>
+            <div class="metric-value">${{ "{:,.2f}".format(btc.price) if btc.price is not none else "N/A" }}</div>
+            <div class="metric-subtext {{ 'green' if btc.change_7d >= 0 else 'red' }}">
+              {{ "{:+.2f}".format(btc.change_7d) }}% from 7d
+            </div>
           </div>
-        </div>
-      
-        <!-- 24h Change -->
-        <div class="metric-card">
-          <div class="metric-label">24h Change</div>
-          <div class="metric-value">
-            {{ "{:+.2f}".format(btc.change_24h) if btc.change_24h is not none else "N/A"  }}%
+        
+          <!-- 24h Change -->
+          <div class="metric-card">
+            <div class="metric-label">24h Change</div>
+            <div class="metric-value">
+              {{ "{:+.2f}".format(btc.change_24h) if btc.change_24h is not none else "N/A"  }}%
+            </div>
+            <div class="metric-subtext {{ 'green' if btc.change_24h >= 0 else 'red' }}">
+              vs yesterday
+            </div>
           </div>
-          <div class="metric-subtext {{ 'green' if btc.change_24h >= 0 else 'red' }}">
-            vs yesterday
+        
+          <!-- Market Cap -->
+          <div class="metric-card">
+            <div class="metric-label">Market Cap</div>
+            <div class="metric-value">${{ "{:,.0f}".format(btc.market_cap) if btc.market_cap is not none else "N/A"  }}</div>
+            <div class="metric-subtext">Live market value</div>
           </div>
-        </div>
-      
-        <!-- Market Cap -->
-        <div class="metric-card">
-          <div class="metric-label">Market Cap</div>
-          <div class="metric-value">${{ "{:,.0f}".format(btc.market_cap) if btc.market_cap is not none else "N/A"  }}</div>
-          <div class="metric-subtext">Live market value</div>
-        </div>
-      
-        <!-- 24h Volume -->
-        <div class="metric-card">
-          <div class="metric-label">24h Volume</div>
-          <div class="metric-value">${{ "{:,.0f}".format(btc.volume) if btc.volume is not none else "N/A" }}</div>
-          <div class="metric-subtext">Across exchanges</div>
-        </div>
-      
-        <!-- Circulating Supply -->
-        <div class="metric-card">
-          <div class="metric-label">Supply</div>
-          <div class="metric-value">{{ "{:,.0f}".format(btc.supply) if btc.supply is not none else "N/A"}}</div>
-          <div class="metric-subtext">Max: {{ "{:,.0f}".format(btc.max_supply) }}</div>
-        </div>
-    </section>
-        <ul>
-            <li><strong>Price:</strong> ${{ "{:,.2f}".format(btc.price) }}</li>
-            <li><strong>Market Cap:</strong> ${{ "{:,.0f}".format(btc.market_cap) }}</li>
-            <li><strong>24h Volume:</strong> ${{ "{:,.0f}".format(btc.volume) }}</li>
-            <li><strong>24h Change:</strong>
-                <span style="color: {{ 'green' if btc.change_24h >= 0 else 'red' }}">
-                    {{ "{:+.2f}".format(btc.change_24h) }}%
-                </span>
-            </li>
-        </ul>
+        
+          <!-- 24h Volume -->
+          <div class="metric-card">
+            <div class="metric-label">24h Volume</div>
+            <div class="metric-value">${{ "{:,.0f}".format(btc.volume) if btc.volume is not none else "N/A" }}</div>
+            <div class="metric-subtext">Across exchanges</div>
+          </div>
+        
+          <!-- Circulating Supply -->
+          <div class="metric-card">
+            <div class="metric-label">Supply</div>
+            <div class="metric-value">{{ "{:,.0f}".format(btc.supply) if btc.supply is not none else "N/A"}}</div>
+            <div class="metric-subtext">Max: {{ "{:,.0f}".format(btc.max_supply) }}</div>
+          </div>
+      </section>
+      <ul>
+          <li><strong>Price:</strong> ${{ "{:,.2f}".format(btc.price) }}</li>
+          <li><strong>Market Cap:</strong> ${{ "{:,.0f}".format(btc.market_cap) }}</li>
+          <li><strong>24h Volume:</strong> ${{ "{:,.0f}".format(btc.volume) }}</li>
+          <li><strong>24h Change:</strong>
+              <span class="metric-subtext {{ 'green' if btc.change_24h >= 0 else 'red' }}">
+                {{ "{:+.2f}".format(btc.change_24h) }}%
+              </span>
+          </li>
+      </ul>  
     {% else %}
         <p>⚠️ Unable to load Bitcoin data. Try again later.</p>
     {% endif %}
