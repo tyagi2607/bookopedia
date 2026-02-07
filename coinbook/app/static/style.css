@@ -1,78 +1,352 @@
-body {
-    font-family: Arial, sans-serif;
-    background-color: #f7f7f7;
-    padding: 2rem;
-}
-ul {
-    list-style-type: none;
+/* ========================================
+   COINBOOK — Book / Encyclopedia Theme
+   ======================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Merriweather:wght@400;700;900&family=Inter:wght@400;600;700&display=swap');
+
+* {
+    margin: 0;
     padding: 0;
-    font-size: 1.1rem;
-}
-li {
-    margin: 0.3rem 0;
+    box-sizing: border-box;
 }
 
-/* === Metric Cards Layout === */
+body {
+    font-family: 'Inter', Arial, sans-serif;
+    background: #3b2f1e;
+    background-image:
+        radial-gradient(ellipse at 30% 20%, rgba(247,147,26,0.08) 0%, transparent 60%),
+        linear-gradient(180deg, #3b2f1e 0%, #2a2016 100%);
+    min-height: 100vh;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+}
 
+/* ---- Book Cover (outer wrapper) ---- */
+.book-cover {
+    width: 100%;
+    max-width: 960px;
+    margin: 2rem auto;
+    padding: 0 1rem;
+}
+
+/* ---- Book Header ---- */
+.book-header {
+    text-align: center;
+    margin-bottom: 1.5rem;
+}
+
+.book-title {
+    font-family: 'Merriweather', Georgia, serif;
+    font-size: 2.5rem;
+    font-weight: 900;
+    color: #f7d794;
+    letter-spacing: 2px;
+    text-shadow: 0 2px 8px rgba(0,0,0,0.4);
+}
+
+.book-subtitle {
+    font-family: 'Merriweather', Georgia, serif;
+    font-size: 1rem;
+    color: #c9a96e;
+    letter-spacing: 1px;
+    margin-top: 0.3rem;
+}
+
+/* ---- Book Page ---- */
+.book-page {
+    background: #fffef6;
+    background-image:
+        linear-gradient(to right, rgba(0,0,0,0.02) 0%, transparent 3%, transparent 97%, rgba(0,0,0,0.02) 100%),
+        repeating-linear-gradient(transparent, transparent 28px, rgba(200,180,140,0.12) 28px, rgba(200,180,140,0.12) 29px);
+    border-radius: 4px 16px 16px 4px;
+    box-shadow:
+        -6px 0 12px rgba(0,0,0,0.15),
+        6px 0 20px rgba(0,0,0,0.1),
+        0 8px 32px rgba(0,0,0,0.2),
+        inset -2px 0 6px rgba(0,0,0,0.04);
+    padding: 2.5rem 2.5rem 2rem 2.5rem;
+    border-left: 6px solid #c9a96e;
+    position: relative;
+    margin-bottom: 2rem;
+}
+
+/* Page curl effect */
+.page-corner {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    width: 40px;
+    height: 40px;
+    background: linear-gradient(135deg, transparent 50%, #e8dcc8 50%, #d4c4a8 100%);
+    border-radius: 0 0 16px 0;
+    box-shadow: -2px -2px 4px rgba(0,0,0,0.05);
+}
+
+/* ---- Chapter Title ---- */
+.chapter-title {
+    font-family: 'Merriweather', Georgia, serif;
+    font-size: 1.8rem;
+    font-weight: 900;
+    color: #3b2f1e;
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.8rem;
+    border-bottom: 2px solid #c9a96e;
+    letter-spacing: 0.5px;
+}
+
+/* ---- Section Headers ---- */
+.section-header {
+    font-family: 'Merriweather', Georgia, serif;
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: #7a5c2e;
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid #e8dcc8;
+    letter-spacing: 0.5px;
+}
+
+/* ---- Metrics Grid ---- */
 .metrics-grid {
     display: grid;
     grid-template-columns: 1fr;
-    gap: 1.5rem;
-    margin-top: 2rem;
-  }
-  
-  /* Responsive for larger screens */
-  @media (min-width: 768px) {
-    .metrics-grid {
-      grid-template-columns: repeat(3, 1fr);
-    }
-  }
-  
-  .metric-card {
-    background: #ffffff;
-    border: 1px solid #e2e8f0;
-    border-radius: 12px;
-    padding: 1.2rem;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-    transition: transform 0.2s ease;
-  }
-  
-  .metric-card:hover {
-    transform: translateY(-4px);
-  }
-  
-  .metric-label {
-    font-size: 0.95rem;
-    font-weight: 600;
-    color: #4a5568;
-    margin-bottom: 0.5rem;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-  }
-  
-  .metric-value {
-    font-size: 1.5rem;
-    font-weight: bold;
-    color: #2d3748;
-  }
-  
-  .metric-subtext {
-    font-size: 0.85rem;
-    margin-top: 0.25rem;
-  }
-  
-  .metric-subtext.green {
-    color: #38a169; /* green */
-  }
-  
-  .metric-subtext.red {
-    color: #e53e3e; /* red */
-  }
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
 
-  .green {
-    color: #38a169; /* Tailwind green-600 */
-  }
-  
-  .red {
-    color: #e53e3e; /* Tailwind red-600 */
-  }
+@media (min-width: 600px) {
+    .metrics-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+@media (min-width: 800px) {
+    .metrics-grid {
+        grid-template-columns: repeat(5, 1fr);
+    }
+}
+
+.metric-card {
+    background: #fdfaf2;
+    border: 1px solid #e8dcc8;
+    border-radius: 10px;
+    padding: 1.2rem 1rem;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    transition: transform 0.2s, box-shadow 0.2s;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.metric-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 16px rgba(247,147,26,0.12);
+}
+
+.metric-label {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: #c9a96e;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 0.4rem;
+}
+
+.metric-value {
+    font-family: 'Inter', sans-serif;
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: #2d2012;
+    margin-bottom: 0.2rem;
+    word-break: break-word;
+}
+
+.metric-subtext {
+    font-size: 0.8rem;
+    color: #8a7a60;
+    margin-top: 0.15rem;
+}
+
+.metric-subtext.green, .green {
+    color: #2d8a4e;
+    font-weight: 600;
+}
+
+.metric-subtext.red, .red {
+    color: #c0392b;
+    font-weight: 600;
+}
+
+/* ---- Chart Section ---- */
+.chart-section {
+    margin: 2rem 0;
+}
+
+.chart-controls {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+}
+
+.chart-controls label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #5c4a2a;
+}
+
+.chart-controls select {
+    font-family: 'Inter', sans-serif;
+    font-size: 0.85rem;
+    padding: 0.4rem 0.8rem;
+    border: 1px solid #d4c4a8;
+    border-radius: 6px;
+    background: #fdfaf2;
+    color: #3b2f1e;
+    cursor: pointer;
+    transition: border-color 0.2s;
+}
+
+.chart-controls select:hover,
+.chart-controls select:focus {
+    border-color: #f7931a;
+    outline: none;
+}
+
+.chart-container {
+    background: #fff;
+    border: 1px solid #e8dcc8;
+    border-radius: 12px;
+    padding: 1rem;
+    height: 350px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+}
+
+#btcChart {
+    width: 100% !important;
+    height: 100% !important;
+}
+
+/* ---- Description Section ---- */
+.description-section {
+    margin-top: 2rem;
+    padding-top: 1rem;
+}
+
+.book-description {
+    font-family: 'Merriweather', Georgia, serif;
+    font-size: 1rem;
+    color: #3b2f1e;
+    line-height: 1.85;
+    margin-bottom: 1rem;
+    text-align: justify;
+    text-indent: 1.5rem;
+}
+
+.book-description:first-of-type {
+    text-indent: 0;
+}
+
+.drop-cap {
+    float: left;
+    font-size: 3.2rem;
+    line-height: 0.85;
+    font-weight: 900;
+    color: #c9a96e;
+    font-family: 'Merriweather', Georgia, serif;
+    margin-right: 0.3rem;
+    margin-top: 0.15rem;
+    text-shadow: 1px 1px 0 rgba(0,0,0,0.08);
+}
+
+/* ---- Page Footer ---- */
+.page-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 2rem;
+    padding-top: 1rem;
+    border-top: 1px solid #e8dcc8;
+    font-family: 'Merriweather', Georgia, serif;
+    font-size: 0.8rem;
+    color: #a08c6a;
+    font-style: italic;
+}
+
+/* ---- Error Message ---- */
+.error-msg {
+    text-align: center;
+    font-size: 1.1rem;
+    color: #c0392b;
+    padding: 2rem;
+}
+
+/* ========== Responsive ========== */
+@media (max-width: 600px) {
+    .book-cover {
+        margin: 0.5rem auto;
+        padding: 0 0.5rem;
+    }
+
+    .book-title {
+        font-size: 1.8rem;
+    }
+
+    .book-subtitle {
+        font-size: 0.85rem;
+    }
+
+    .book-page {
+        padding: 1.5rem 1rem 1.2rem 1rem;
+        border-radius: 2px 10px 10px 2px;
+        border-left-width: 4px;
+    }
+
+    .chapter-title {
+        font-size: 1.3rem;
+    }
+
+    .section-header {
+        font-size: 1.1rem;
+    }
+
+    .metrics-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 0.7rem;
+    }
+
+    .metric-card {
+        padding: 0.9rem 0.7rem;
+        border-radius: 8px;
+    }
+
+    .metric-value {
+        font-size: 1.1rem;
+    }
+
+    .chart-container {
+        height: 250px;
+        padding: 0.5rem;
+    }
+
+    .chart-controls {
+        gap: 0.5rem;
+    }
+
+    .book-description {
+        font-size: 0.95rem;
+        line-height: 1.7;
+    }
+
+    .drop-cap {
+        font-size: 2.2rem;
+    }
+
+    .page-corner {
+        width: 25px;
+        height: 25px;
+    }
+}

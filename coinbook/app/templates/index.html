@@ -1,69 +1,230 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Coinbook</title>
+    <title>Coinbook - Bitcoin</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@400;700;900&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
-    <h1>Welcome to Coinbook</h1>
-    <p>Your crypto dashboard starts here 🚀</p>
+    <div class="book-cover">
+        <!-- Book Header -->
+        <header class="book-header">
+            <h1 class="book-title">&#128214; Coinbook</h1>
+            <p class="book-subtitle">The Encyclopedia of Cryptocurrency</p>
+        </header>
 
-    <h2>Bitcoin (BTC)</h2>
-    {% if btc %}
-      <section class="metrics-grid">
-          <!-- Price -->
-          <div class="metric-card">
-            <div class="metric-label">Price</div>
-            <div class="metric-value">${{ "{:,.2f}".format(btc.price) if btc.price is not none else "N/A" }}</div>
-            <div class="metric-subtext {{ 'green' if btc.change_7d >= 0 else 'red' }}">
-              {{ "{:+.2f}".format(btc.change_7d) }}% from 7d
+        <!-- Page: Bitcoin -->
+        <div class="book-page">
+            <div class="page-corner"></div>
+
+            <!-- Chapter Title -->
+            <h2 class="chapter-title">Chapter 1: Bitcoin (BTC)</h2>
+
+            {% if btc %}
+            <!-- Metrics Section -->
+            <section class="metrics-grid">
+                <div class="metric-card">
+                    <div class="metric-label">Price</div>
+                    <div class="metric-value">${{ "{:,.0f}".format(btc.price) if btc.price is not none else "N/A" }}</div>
+                    <div class="metric-subtext {{ 'green' if btc.change_7d and btc.change_7d >= 0 else 'red' }}">
+                        {{ "{:+.2f}".format(btc.change_7d) if btc.change_7d is not none else "N/A" }}% from 7d
+                    </div>
+                </div>
+
+                <div class="metric-card">
+                    <div class="metric-label">24h Change</div>
+                    <div class="metric-value {{ 'green' if btc.change_24h and btc.change_24h >= 0 else 'red' }}">
+                        {{ "{:+.2f}".format(btc.change_24h) if btc.change_24h is not none else "N/A" }}%
+                    </div>
+                    <div class="metric-subtext">vs yesterday</div>
+                </div>
+
+                <div class="metric-card">
+                    <div class="metric-label">Market Cap</div>
+                    <div class="metric-value">${{ "{:,.2f}B".format(btc.market_cap / 1000000000) if btc.market_cap is not none else "N/A" }}</div>
+                    <div class="metric-subtext">Live market value</div>
+                </div>
+
+                <div class="metric-card">
+                    <div class="metric-label">24h Volume</div>
+                    <div class="metric-value">${{ "{:,.2f}B".format(btc.volume / 1000000000) if btc.volume is not none else "N/A" }}</div>
+                    <div class="metric-subtext">Across exchanges</div>
+                </div>
+
+                <div class="metric-card">
+                    <div class="metric-label">Supply</div>
+                    <div class="metric-value">{{ "{:,.2f}M".format(btc.supply / 1000000) if btc.supply is not none else "N/A" }}</div>
+                    <div class="metric-subtext">Max: {{ "{:,.2f}M".format(btc.max_supply / 1000000) if btc.max_supply is not none else "N/A" }}</div>
+                </div>
+            </section>
+
+            <!-- Chart Section -->
+            <section class="chart-section">
+                <h3 class="section-header">&#128200; Price History</h3>
+                <div class="chart-controls">
+                    <label for="chartRange">Time Range:</label>
+                    <select id="chartRange">
+                        <option value="daily">Daily</option>
+                        <option value="7d">7d</option>
+                        <option value="30d" selected>30d</option>
+                        <option value="6m">6m</option>
+                        <option value="1y">1y</option>
+                        <option value="5y">5y</option>
+                        <option value="all">All</option>
+                    </select>
+                    <label for="chartType">Chart Type:</label>
+                    <select id="chartType">
+                        <option value="line" selected>Line</option>
+                        <option value="candlestick">Candlestick</option>
+                    </select>
+                </div>
+                <div class="chart-container">
+                    <canvas id="btcChart"></canvas>
+                </div>
+            </section>
+
+            {% else %}
+            <p class="error-msg">&#9888;&#65039; Unable to load Bitcoin data. Try again later.</p>
+            {% endif %}
+
+            <!-- Description Section -->
+            <section class="description-section">
+                <h3 class="section-header">&#128218; About Bitcoin</h3>
+                <div class="book-description">
+                    <span class="drop-cap">B</span>itcoin (BTC) is the first and most well-known cryptocurrency, launched in 2009 by the pseudonymous Satoshi Nakamoto. It operates on a decentralized, peer-to-peer network, allowing users to send and receive value without intermediaries.
+                </div>
+                <div class="book-description">
+                    Bitcoin's supply is capped at 21 million coins, making it a scarce digital asset often compared to gold. Its blockchain records all transactions transparently and securely, maintained by a global network of miners who validate and process transactions.
+                </div>
+                <div class="book-description">
+                    The price of Bitcoin is influenced by global demand, institutional adoption, regulatory developments, and macroeconomic factors. Since its inception, Bitcoin has grown from a niche experiment to a trillion-dollar asset class, reshaping the global financial landscape. It is commonly described as "digital gold" and is used for both investment and payments worldwide.
+                </div>
+            </section>
+
+            <!-- Page Footer -->
+            <div class="page-footer">
+                <span>Coinbook &mdash; Bitcoin</span>
+                <span>Page 1</span>
             </div>
-          </div>
-        
-          <!-- 24h Change -->
-          <div class="metric-card">
-            <div class="metric-label">24h Change</div>
-            <div class="metric-value">
-              {{ "{:+.2f}".format(btc.change_24h) if btc.change_24h is not none else "N/A"  }}%
-            </div>
-            <div class="metric-subtext {{ 'green' if btc.change_24h >= 0 else 'red' }}">
-              vs yesterday
-            </div>
-          </div>
-        
-          <!-- Market Cap -->
-          <div class="metric-card">
-            <div class="metric-label">Market Cap</div>
-            <div class="metric-value">${{ "{:,.0f}".format(btc.market_cap) if btc.market_cap is not none else "N/A"  }}</div>
-            <div class="metric-subtext">Live market value</div>
-          </div>
-        
-          <!-- 24h Volume -->
-          <div class="metric-card">
-            <div class="metric-label">24h Volume</div>
-            <div class="metric-value">${{ "{:,.0f}".format(btc.volume) if btc.volume is not none else "N/A" }}</div>
-            <div class="metric-subtext">Across exchanges</div>
-          </div>
-        
-          <!-- Circulating Supply -->
-          <div class="metric-card">
-            <div class="metric-label">Supply</div>
-            <div class="metric-value">{{ "{:,.0f}".format(btc.supply) if btc.supply is not none else "N/A"}}</div>
-            <div class="metric-subtext">Max: {{ "{:,.0f}".format(btc.max_supply) }}</div>
-          </div>
-      </section>
-      <ul>
-          <li><strong>Price:</strong> ${{ "{:,.2f}".format(btc.price) }}</li>
-          <li><strong>Market Cap:</strong> ${{ "{:,.0f}".format(btc.market_cap) }}</li>
-          <li><strong>24h Volume:</strong> ${{ "{:,.0f}".format(btc.volume) }}</li>
-          <li><strong>24h Change:</strong>
-              <span class="metric-subtext {{ 'green' if btc.change_24h >= 0 else 'red' }}">
-                {{ "{:+.2f}".format(btc.change_24h) }}%
-              </span>
-          </li>
-      </ul>  
-    {% else %}
-        <p>⚠️ Unable to load Bitcoin data. Try again later.</p>
-    {% endif %}
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+    function fetchAndRenderChart(range, type) {
+        fetch(`/api/bitcoin/history?range=${range}&type=${type}`)
+            .then(res => res.json())
+            .then(data => {
+                if (data.error) {
+                    console.error('API error:', data.error);
+                    return;
+                }
+                const ctx = document.getElementById('btcChart').getContext('2d');
+                if (window.btcChartInstance) window.btcChartInstance.destroy();
+
+                if (type === 'line') {
+                    // Use all date labels (date part only) and let Chart.js handle even spacing
+                    const labels = data.labels.map(l => l.split(' ')[0]);
+
+                    window.btcChartInstance = new Chart(ctx, {
+                        type: 'line',
+                        data: {
+                            labels: labels,
+                            datasets: [{
+                                label: 'BTC Price (USD)',
+                                data: data.prices,
+                                borderColor: '#f7931a',
+                                backgroundColor: 'rgba(247,147,26,0.08)',
+                                borderWidth: 2,
+                                pointRadius: 0,
+                                pointHoverRadius: 5,
+                                fill: true,
+                                tension: 0.3
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: { display: false },
+                                tooltip: {
+                                    callbacks: {
+                                        title: items => items[0].label,
+                                        label: ctx => '$' + ctx.parsed.y.toLocaleString(undefined, {minimumFractionDigits: 2})
+                                    }
+                                }
+                            },
+                            scales: {
+                                x: {
+                                    grid: { display: false },
+                                    ticks: {
+                                        maxTicksLimit: 8,
+                                        autoSkip: true,
+                                        maxRotation: 0,
+                                        font: { size: 11 },
+                                        callback: function(value, index) {
+                                            return this.getLabelForValue(value);
+                                        }
+                                    }
+                                },
+                                y: {
+                                    grid: { color: 'rgba(0,0,0,0.05)' },
+                                    ticks: {
+                                        callback: v => '$' + v.toLocaleString(),
+                                        font: { size: 11 }
+                                    }
+                                }
+                            }
+                        }
+                    });
+                } else if (type === 'candlestick' && data.candles) {
+                    const labels = data.candles.map(c => c.t.split(' ')[0]);
+                    const closes = data.candles.map(c => c.c);
+
+                    window.btcChartInstance = new Chart(ctx, {
+                        type: 'bar',
+                        data: {
+                            labels: labels,
+                            datasets: [{
+                                label: 'BTC Close Price (USD)',
+                                data: closes,
+                                backgroundColor: closes.map((c, i) =>
+                                    i > 0 && c >= closes[i-1] ? 'rgba(38,166,154,0.7)' : 'rgba(239,83,80,0.7)'
+                                ),
+                                borderRadius: 2
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: { legend: { display: false } },
+                            scales: {
+                                x: { grid: { display: false }, ticks: { maxTicksLimit: 10, font: { size: 11 } } },
+                                y: {
+                                    ticks: {
+                                        callback: v => '$' + v.toLocaleString(),
+                                        font: { size: 11 }
+                                    }
+                                }
+                            }
+                        }
+                    });
+                }
+            })
+            .catch(err => console.error('Chart fetch error:', err));
+    }
+
+    window.addEventListener('DOMContentLoaded', function() {
+        fetchAndRenderChart('30d', 'line');
+        document.getElementById('chartRange').addEventListener('change', function() {
+            fetchAndRenderChart(this.value, document.getElementById('chartType').value);
+        });
+        document.getElementById('chartType').addEventListener('change', function() {
+            fetchAndRenderChart(document.getElementById('chartRange').value, this.value);
+        });
+    });
+    </script>
 </body>
 </html>
