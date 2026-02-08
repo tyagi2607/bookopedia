@@ -4,7 +4,7 @@ import datetime
 from app.services.coins import get_btc_data
 from app.services.mongo_price import save_price_history, get_price_history
 
-main = Blueprint("main", __name__)
+coinbook = Blueprint("coinbook", __name__, url_prefix="/coinbook")
 
 
 # Helper class to enable dot notation in Jinja
@@ -19,21 +19,19 @@ class BtcData:
         self.max_supply = data.get("max_supply")
 
 
-@main.route("/")
-def home():
+@coinbook.route("/bitcoin")
+def bitcoin():
     data = get_btc_data()
     print("BTC DATA:", data)
     btc = BtcData(data) if data else None
-    return render_template("index.html", btc=btc)
+    return render_template("coinbook/bitcoin.html", btc=btc, active_page="bitcoin")
 
 
-@main.route('/api/bitcoin/history')
+@coinbook.route('/api/bitcoin/history')
 def bitcoin_history():
-    # Get parameters
     range_param = request.args.get('range', '30d')
     chart_type = request.args.get('type', 'line')
 
-    # Map range to days
     range_map = {
         'daily': 1,
         '7d': 7,
@@ -45,11 +43,9 @@ def bitcoin_history():
     }
     days = range_map.get(range_param, 30)
 
-    # Try to get price history from MongoDB
     history = get_price_history()
 
     if not history:
-        # Fetch from CoinGecko API (fallback or no MongoDB)
         url = f'https://api.coingecko.com/api/v3/coins/bitcoin/market_chart?vs_currency=usd&days={days}'
         try:
             resp = requests.get(url, timeout=10)
@@ -57,17 +53,15 @@ def bitcoin_history():
                 return jsonify({'error': f'CoinGecko API returned {resp.status_code}'}), 500
             data = resp.json()
             raw_prices = data.get('prices', [])
-            # Try to save to MongoDB for caching
             save_price_history(raw_prices)
-            # Use raw API data directly
             labels = [datetime.datetime.fromtimestamp(p[0] / 1000).strftime('%Y-%m-%d %H:%M') for p in raw_prices]
             prices = [p[1] for p in raw_prices]
         except requests.exceptions.RequestException as e:
             return jsonify({'error': f'Failed to fetch data: {str(e)}'}), 500
     else:
-        # Use MongoDB data
         labels = [datetime.datetime.fromtimestamp(h['timestamp'] / 1000).strftime('%Y-%m-%d %H:%M') for h in history]
         prices = [h['price'] for h in history]
+
     chart_data = {
         'labels': labels,
         'prices': prices

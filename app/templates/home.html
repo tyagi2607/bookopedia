@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% block title %}Bookopedia — Democratizing Data{% endblock %}
+
+{% block content %}
+<div class="book-cover">
+    <header class="page-header">
+        <h1 class="hero-title">&#128214; Bookopedia</h1>
+        <p class="hero-subtitle">Where we visualize freely available data to reveal patterns</p>
+    </header>
+
+    <div class="book-page">
+        <div class="page-corner"></div>
+
+        <h2 class="chapter-title">Welcome, Reader</h2>
+
+        <div class="book-description">
+            <span class="drop-cap">B</span>ookopedia is an open data encyclopedia — a living collection of dashboards and visualizations built from freely available data on the internet. Our mission is to democratize data, making complex information accessible, visual, and understandable for everyone.
+        </div>
+
+        <div class="book-description">
+            Each section is organized like a book, with chapters devoted to specific topics. Browse the sections below or use the sidebar to navigate.
+        </div>
+
+        <!-- Sections Overview -->
+        <section class="sections-overview">
+            <h3 class="section-header">&#128218; Table of Contents</h3>
+
+            <div class="toc-grid">
+                <a href="{{ url_for('coinbook.bitcoin') }}" class="toc-card">
+                    <div class="toc-icon">&#129689;</div>
+                    <div class="toc-info">
+                        <h4>Section I: Coinbook</h4>
+                        <p>Cryptocurrency metrics, charts, and analysis. Tracking Bitcoin, Ethereum, and more.</p>
+                        <span class="toc-chapters">1 chapter</span>
+                    </div>
+                </a>
+
+                <a href="{{ url_for('stocks.oil_gas') }}" class="toc-card">
+                    <div class="toc-icon">&#128200;</div>
+                    <div class="toc-info">
+                        <h4>Section II: Industry Stock Analysis</h4>
+                        <p>Sector-level stock data and trends. Starting with Oil &amp; Gas.</p>
+                        <span class="toc-chapters">1 chapter</span>
+                    </div>
+                </a>
+            </div>
+        </section>
+
+        <div class="page-footer">
+            <span>Bookopedia</span>
+            <span>Home</span>
+        </div>
+    </div>
+</div>
+{% endblock %}

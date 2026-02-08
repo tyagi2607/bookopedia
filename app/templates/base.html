@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Bookopedia{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@400;700;900&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    {% block head %}{% endblock %}
+</head>
+<body>
+    <!-- Sidebar Toggle (mobile) -->
+    <button class="sidebar-toggle" id="sidebarToggle" aria-label="Toggle menu">&#9776;</button>
+
+    <!-- Sidebar -->
+    <nav class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <h1 class="sidebar-title">&#128214; Bookopedia</h1>
+            <p class="sidebar-tagline">Democratizing Data</p>
+        </div>
+
+        <ul class="sidebar-nav">
+            <li class="nav-item {{ 'active' if active_page == 'home' else '' }}">
+                <a href="{{ url_for('main.home') }}">&#127968; Home</a>
+            </li>
+
+            <!-- Section: Coinbook -->
+            <li class="nav-section">
+                <span class="nav-section-label">&#129689; Coinbook</span>
+                <ul class="nav-subsection">
+                    <li class="nav-item {{ 'active' if active_page == 'bitcoin' else '' }}">
+                        <a href="{{ url_for('coinbook.bitcoin') }}">Chapter 1: Bitcoin</a>
+                    </li>
+                </ul>
+            </li>
+
+            <!-- Section: Industry Stock Analysis -->
+            <li class="nav-section">
+                <span class="nav-section-label">&#128200; Stock Analysis</span>
+                <ul class="nav-subsection">
+                    <li class="nav-item {{ 'active' if active_page == 'oil_gas' else '' }}">
+                        <a href="{{ url_for('stocks.oil_gas') }}">Oil &amp; Gas</a>
+                    </li>
+                </ul>
+            </li>
+        </ul>
+
+        <div class="sidebar-footer">
+            <p>&copy; 2026 Bookopedia</p>
+        </div>
+    </nav>
+
+    <!-- Sidebar Overlay (mobile) -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Scripts -->
+    <script>
+    // Sidebar toggle for mobile
+    const toggle = document.getElementById('sidebarToggle');
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('sidebarOverlay');
+    toggle.addEventListener('click', () => {
+        sidebar.classList.toggle('open');
+        overlay.classList.toggle('open');
+    });
+    overlay.addEventListener('click', () => {
+        sidebar.classList.remove('open');
+        overlay.classList.remove('open');
+    });
+    </script>
+    {% block scripts %}{% endblock %}
+</body>
+</html>
