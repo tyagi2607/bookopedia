@@ -13,25 +13,134 @@
         <h2 class="chapter-title">Oil &amp; Gas Industry Analysis</h2>
 
         <div class="book-description">
-            <span class="drop-cap">T</span>his section will track key metrics and trends in the Oil &amp; Gas industry, including stock performance of major companies, crude oil prices, production volumes, and sector-wide analysis using freely available market data.
+            <span class="drop-cap">T</span>his chapter tracks oil and gas market conditions alongside the largest listed companies. It highlights crude pricing, sector performance, and company-level valuation signals so readers can connect the commodity cycle with equities.
         </div>
 
         <div class="book-description">
-            Analysis will cover companies like ExxonMobil, Chevron, Shell, BP, and ConocoPhillips, as well as ETFs tracking the energy sector. Historical price data, P/E ratios, dividend yields, and correlation with commodity prices will be visualized.
+            The figures below refresh from free public APIs. Due to rate limits, some rows may show N/A during peak usage.
         </div>
 
-        <section class="coming-soon">
-            <div class="coming-soon-box">
-                <h3>&#128679; Coming Soon</h3>
-                <p>We're collecting and organizing Oil &amp; Gas stock data. This chapter will include:</p>
-                <ul>
-                    <li>Major O&amp;G stock price charts</li>
-                    <li>Crude oil price correlation</li>
-                    <li>Sector ETF performance</li>
-                    <li>Dividend yield tracking</li>
-                    <li>Historical P/E ratios</li>
-                </ul>
+        {% if sector_metrics %}
+        <section class="metrics-grid">
+            {% for metric in sector_metrics %}
+            <div class="metric-card">
+                <div class="metric-label">{{ metric.label }}</div>
+                <div class="metric-value">{{ metric.value }}</div>
+                <div class="metric-subtext">{{ metric.subtext }}</div>
+                <div class="metric-subtext {{ metric.trend_class }}">{{ metric.trend_text }}</div>
             </div>
+            {% endfor %}
+        </section>
+        {% else %}
+        <p class="error-msg">&#9888;&#65039; Sector snapshot is unavailable right now.</p>
+        {% endif %}
+
+        <section class="chart-section">
+            <h3 class="section-header">&#128200; Energy Sector (XLE) Price History</h3>
+            <div class="chart-controls">
+                <label for="energyRange">Time Range:</label>
+                <select id="energyRange">
+                    <option value="7d">7d</option>
+                    <option value="30d" selected>30d</option>
+                    <option value="3m">3m</option>
+                    <option value="6m">6m</option>
+                    <option value="1y">1y</option>
+                    <option value="5y">5y</option>
+                </select>
+            </div>
+            <div class="chart-container">
+                <canvas id="energyChart"></canvas>
+            </div>
+        </section>
+
+        <section class="chart-section">
+            <h3 class="section-header">&#128200; Major Oil &amp; Gas Stocks — USA &amp; Canada</h3>
+
+            <div class="metrics-key" style="margin-bottom:1rem;font-size:0.82rem;color:#666;line-height:1.6;">
+                <strong>Key Metrics Guide:</strong>
+                <span style="margin-left:0.8rem;"><em>P/E</em> = Price / Earnings &mdash; lower is cheaper relative to profits.</span>
+                <span style="margin-left:0.8rem;"><em>P/FCF</em> = Price / Free Cash Flow &mdash; critical for capital-intensive oil firms; &lt;15 is attractive.</span>
+                <span style="margin-left:0.8rem;"><em>EV/EBITDA</em> = Enterprise Value / EBITDA &mdash; sector standard; oil majors typically 5–10×.</span>
+                <span style="margin-left:0.8rem;"><em>Div. Yield</em> = Annual dividend as % of price &mdash; oil majors often 3–6%.</span>
+                <span style="margin-left:0.8rem;"><em>ROE</em> = Return on Equity &mdash; measures how efficiently capital is deployed.</span>
+            </div>
+
+            {% if companies %}
+            <div class="table-wrap">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Country</th>
+                            <th>Sector</th>
+                            <th>Company</th>
+                            <th>Price</th>
+                            <th>Mkt Cap</th>
+                            <th>52W Range</th>
+                            <th>Div. Yield</th>
+                            <th>P/E</th>
+                            <th>EV/EBITDA</th>
+                            <th>P/FCF</th>
+                            <th>P/B</th>
+                            <th>ROE</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for company in companies %}
+                        {% set country = company.country | upper if company.country else "USA" %}
+                        <tr>
+                            <td>
+                                <span class="country-badge country-{{ 'ca' if country == 'CA' or country == 'CANADA' else 'us' }}">
+                                    {{ "🇨🇦" if country == "CA" or country == "CANADA" else "🇺🇸" }}
+                                </span>
+                            </td>
+                            <td><span class="sector-tag">{{ company.sector }}</span></td>
+                            <td>
+                                <span class="ticker-tag">{{ company.ticker }}</span>
+                                <span class="company-name-sm">{{ company.name }}</span>
+                            </td>
+                            <td class="num-cell">{{ "$" + "{:,.2f}".format(company.price) if company.price is not none else "N/A" }}</td>
+                            <td class="num-cell">{{ company.market_cap }}</td>
+                            <td>
+                                {% if company.low_52 is not none and company.high_52 is not none %}
+                                <div class="range-labels">
+                                    <span>${{ "{:.0f}".format(company.low_52) }}</span>
+                                    <span>${{ "{:.0f}".format(company.high_52) }}</span>
+                                </div>
+                                <div class="range-bar">
+                                    <div class="range-fill" style="width: {{ "{:.0f}".format(company.range_percent or 0) }}%"></div>
+                                </div>
+                                {% else %}N/A{% endif %}
+                            </td>
+                            <td class="num-cell {% if company.dividend_yield is not none and company.dividend_yield >= 0.03 %}val-good{% endif %}">
+                                {{ "{:.1f}%".format(company.dividend_yield * 100) if company.dividend_yield is not none else "—" }}
+                            </td>
+                            <td class="num-cell {% if company.pe is not none and company.pe < 12 %}val-good{% elif company.pe is not none and company.pe > 25 %}val-warn{% endif %}">
+                                {{ "{:.1f}x".format(company.pe) if company.pe is not none else "—" }}
+                            </td>
+                            <td class="num-cell {% if company.ev_to_ebitda is not none and company.ev_to_ebitda < 8 %}val-good{% elif company.ev_to_ebitda is not none and company.ev_to_ebitda > 14 %}val-warn{% endif %}">
+                                {{ "{:.1f}x".format(company.ev_to_ebitda) if company.ev_to_ebitda is not none else "—" }}
+                            </td>
+                            <td class="num-cell {% if company.price_to_fcf is not none and company.price_to_fcf < 15 %}val-good{% elif company.price_to_fcf is not none and company.price_to_fcf > 25 %}val-warn{% endif %}">
+                                {{ "{:.1f}x".format(company.price_to_fcf) if company.price_to_fcf is not none else "—" }}
+                            </td>
+                            <td class="num-cell">{{ "{:.2f}x".format(company.price_to_book) if company.price_to_book is not none else "—" }}</td>
+                            <td class="num-cell {% if company.roe is not none and company.roe >= 0.15 %}val-good{% elif company.roe is not none and company.roe < 0.05 %}val-warn{% endif %}">
+                                {{ "{:.1f}%".format(company.roe * 100) if company.roe is not none else "—" }}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <div class="muted-note" style="margin-top:0.5rem;">
+                Snapshot as of {{ as_of or "latest trading day" }}.
+                <span style="margin-left:1rem;color:#26a69a;">&#9679; Green</span> = attractive.
+                <span style="margin-left:0.5rem;color:#ef5350;">&#9679; Warm</span> = stretched valuation.
+                Rate limits may leave some cells empty on first load.
+            </div>
+            {% else %}
+            <p class="error-msg">&#9888;&#65039; Company data is not available.</p>
+            {% endif %}
         </section>
 
         <div class="page-footer">
@@ -40,4 +149,87 @@
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block scripts %}
+<style>
+/* Oil & Gas table enhancements */
+.num-cell { text-align: right; font-variant-numeric: tabular-nums; }
+.val-good  { color: #26a69a; font-weight: 600; }
+.val-warn  { color: #ef5350; font-weight: 600; }
+
+.country-badge { font-size: 1.1rem; }
+.company-name-sm { display: block; font-size: 0.72rem; color: #888; margin-top: 1px; max-width: 140px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.sector-tag { background: rgba(184,107,28,0.12); color: #7a4a10; border-radius: 4px; padding: 1px 6px; font-size: 0.73rem; white-space: nowrap; }
+
+.metrics-key em { background: #f5f0e8; border-radius: 3px; padding: 0 3px; }
+.data-table th, .data-table td { padding: 6px 10px; }
+.data-table thead th { background: #f5f0e8; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.03em; }
+.data-table tbody tr:hover { background: rgba(184,107,28,0.04); }
+.table-wrap { overflow-x: auto; }
+</style>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+function fetchEnergyChart(range) {
+    fetch(`/stocks/api/energy/history?range=${range}`)
+        .then(res => res.json())
+        .then(data => {
+            if (data.error) {
+                console.error('API error:', data.error);
+                return;
+            }
+            const ctx = document.getElementById('energyChart').getContext('2d');
+            if (window.energyChartInstance) window.energyChartInstance.destroy();
+
+            window.energyChartInstance = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: data.labels,
+                    datasets: [{
+                        label: 'XLE Close (USD)',
+                        data: data.prices,
+                        borderColor: '#b86b1c',
+                        backgroundColor: 'rgba(184,107,28,0.12)',
+                        borderWidth: 2,
+                        pointRadius: 0,
+                        pointHoverRadius: 4,
+                        fill: true,
+                        tension: 0.3
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: ctx => '$' + ctx.parsed.y.toLocaleString(undefined, {minimumFractionDigits: 2})
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            grid: { display: false },
+                            ticks: { maxTicksLimit: 8, autoSkip: true, maxRotation: 0, font: { size: 11 } }
+                        },
+                        y: {
+                            grid: { color: 'rgba(0,0,0,0.05)' },
+                            ticks: { callback: v => '$' + v.toLocaleString(), font: { size: 11 } }
+                        }
+                    }
+                }
+            });
+        })
+        .catch(err => console.error('Chart fetch error:', err));
+}
+
+window.addEventListener('DOMContentLoaded', function() {
+    const rangeSelect = document.getElementById('energyRange');
+    fetchEnergyChart(rangeSelect.value);
+    rangeSelect.addEventListener('change', function() {
+        fetchEnergyChart(this.value);
+    });
+});
+</script>
 {% endblock %}

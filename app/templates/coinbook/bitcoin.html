@@ -62,7 +62,6 @@
                     <option value="6m">6m</option>
                     <option value="1y">1y</option>
                     <option value="5y">5y</option>
-                    <option value="all">All</option>
                 </select>
                 <label for="chartType">Chart Type:</label>
                 <select id="chartType">
@@ -72,6 +71,23 @@
             </div>
             <div class="chart-container">
                 <canvas id="btcChart"></canvas>
+            </div>
+        </section>
+
+        <!-- Volume/Price Correlation Chart -->
+        <section class="chart-section">
+            <h3 class="section-header">&#128202; Volume & Price Correlation</h3>
+            <div class="chart-controls">
+                <label for="correlationRange">Time Range:</label>
+                <select id="correlationRange">
+                    <option value="30d">30d</option>
+                    <option value="6m">6m</option>
+                    <option value="1y" selected>1y</option>
+                    <option value="5y">5y</option>
+                </select>
+            </div>
+            <div class="chart-container">
+                <canvas id="correlationChart"></canvas>
             </div>
         </section>
 
@@ -103,7 +119,10 @@
 
 {% block scripts %}
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@2.0.1/dist/chartjs-plugin-zoom.min.js"></script>
 <script>
+let priceStats = { min: null, max: null, change: null, changePct: null };
+
 function fetchAndRenderChart(range, type) {
     fetch(`/coinbook/api/bitcoin/history?range=${range}&type=${type}`)
         .then(res => res.json())
@@ -117,57 +136,139 @@ function fetchAndRenderChart(range, type) {
 
             if (type === 'line') {
                 const labels = data.labels.map(l => l.split(' ')[0]);
+                const prices = data.prices;
+                
+                // Calculate stats
+                const minPrice = Math.min(...prices);
+                const maxPrice = Math.max(...prices);
+                const firstPrice = prices[0];
+                const lastPrice = prices[prices.length - 1];
+                const priceChange = lastPrice - firstPrice;
+                const priceChangePct = ((priceChange / firstPrice) * 100).toFixed(2);
+                
+                priceStats = { min: minPrice, max: maxPrice, change: priceChange, changePct: priceChangePct };
+
                 window.btcChartInstance = new Chart(ctx, {
                     type: 'line',
                     data: {
                         labels: labels,
                         datasets: [{
                             label: 'BTC Price (USD)',
-                            data: data.prices,
-                            borderColor: '#f7931a',
-                            backgroundColor: 'rgba(247,147,26,0.08)',
-                            borderWidth: 2,
+                            data: prices,
+                            borderColor: priceChange >= 0 ? '#26a69a' : '#ef5350',
+                            backgroundColor: priceChange >= 0 ? 'rgba(38,166,154,0.08)' : 'rgba(239,83,80,0.08)',
+                            borderWidth: 2.5,
                             pointRadius: 0,
-                            pointHoverRadius: 5,
+                            pointHoverRadius: 6,
+                            pointHoverBackgroundColor: '#fff',
+                            pointHoverBorderWidth: 2,
                             fill: true,
-                            tension: 0.3
+                            tension: 0.4,
+                            segment: {
+                                borderColor: ctx => {
+                                    const curr = ctx.p1.parsed.y;
+                                    const prev = ctx.p0.parsed.y;
+                                    return curr >= prev ? 'rgba(38,166,154,0.9)' : 'rgba(239,83,80,0.9)';
+                                }
+                            }
                         }]
                     },
                     options: {
                         responsive: true,
                         maintainAspectRatio: false,
+                        animation: {
+                            duration: 750,
+                            easing: 'easeInOutQuart'
+                        },
                         plugins: {
                             legend: { display: false },
                             tooltip: {
+                                enabled: true,
+                                mode: 'index',
+                                intersect: false,
+                                backgroundColor: 'rgba(0,0,0,0.85)',
+                                titleColor: '#fff',
+                                bodyColor: '#fff',
+                                borderColor: priceChange >= 0 ? '#26a69a' : '#ef5350',
+                                borderWidth: 2,
+                                padding: 12,
+                                displayColors: false,
                                 callbacks: {
                                     title: items => items[0].label,
-                                    label: ctx => '$' + ctx.parsed.y.toLocaleString(undefined, {minimumFractionDigits: 2})
+                                    label: ctx => {
+                                        const price = ctx.parsed.y;
+                                        const idx = ctx.dataIndex;
+                                        const change = idx > 0 ? price - prices[idx - 1] : 0;
+                                        const changePct = idx > 0 ? ((change / prices[idx - 1]) * 100).toFixed(2) : 0;
+                                        return [
+                                            `Price: $${price.toLocaleString(undefined, {minimumFractionDigits: 2})}`,
+                                            idx > 0 ? `Change: ${change >= 0 ? '+' : ''}$${change.toFixed(2)} (${changePct >= 0 ? '+' : ''}${changePct}%)` : ''
+                                        ].filter(Boolean);
+                                    },
+                                    footer: () => {
+                                        return `Min: $${minPrice.toLocaleString()} | Max: $${maxPrice.toLocaleString()}`;
+                                    }
+                                }
+                            },
+                            zoom: {
+                                pan: {
+                                    enabled: true,
+                                    mode: 'x',
+                                    modifierKey: 'ctrl',
+                                },
+                                zoom: {
+                                    wheel: {
+                                        enabled: true,
+                                        speed: 0.1
+                                    },
+                                    pinch: {
+                                        enabled: true
+                                    },
+                                    mode: 'x',
                                 }
                             }
                         },
                         scales: {
                             x: {
-                                grid: { display: false },
+                                grid: { 
+                                    display: true,
+                                    color: 'rgba(0,0,0,0.04)',
+                                    lineWidth: 1
+                                },
                                 ticks: {
-                                    maxTicksLimit: 8,
+                                    maxTicksLimit: 12,
                                     autoSkip: true,
                                     maxRotation: 0,
-                                    font: { size: 11 }
+                                    font: { size: 11, weight: '500' },
+                                    color: '#666'
                                 }
                             },
                             y: {
-                                grid: { color: 'rgba(0,0,0,0.05)' },
+                                type: 'linear',
+                                position: 'right',
+                                grid: { 
+                                    color: 'rgba(0,0,0,0.06)',
+                                    lineWidth: 1
+                                },
                                 ticks: {
-                                    callback: v => '$' + v.toLocaleString(),
-                                    font: { size: 11 }
-                                }
+                                    callback: v => '$' + v.toLocaleString(undefined, {maximumFractionDigits: 0}),
+                                    font: { size: 11, weight: '500' },
+                                    color: '#666',
+                                    padding: 8
+                                },
+                                beginAtZero: false
                             }
+                        },
+                        interaction: {
+                            mode: 'index',
+                            intersect: false,
                         }
                     }
                 });
             } else if (type === 'candlestick' && data.candles) {
                 const labels = data.candles.map(c => c.t.split(' ')[0]);
                 const closes = data.candles.map(c => c.c);
+                
                 window.btcChartInstance = new Chart(ctx, {
                     type: 'bar',
                     data: {
@@ -176,18 +277,74 @@ function fetchAndRenderChart(range, type) {
                             label: 'BTC Close Price (USD)',
                             data: closes,
                             backgroundColor: closes.map((c, i) =>
-                                i > 0 && c >= closes[i-1] ? 'rgba(38,166,154,0.7)' : 'rgba(239,83,80,0.7)'
+                                i > 0 && c >= closes[i-1] ? 'rgba(38,166,154,0.85)' : 'rgba(239,83,80,0.85)'
                             ),
-                            borderRadius: 2
+                            borderColor: closes.map((c, i) =>
+                                i > 0 && c >= closes[i-1] ? 'rgba(38,166,154,1)' : 'rgba(239,83,80,1)'
+                            ),
+                            borderWidth: 1,
+                            borderRadius: 0,
+                            barThickness: 'flex',
+                            maxBarThickness: 8
                         }]
                     },
                     options: {
                         responsive: true,
                         maintainAspectRatio: false,
-                        plugins: { legend: { display: false } },
+                        animation: {
+                            duration: 500,
+                            easing: 'easeInOutQuart'
+                        },
+                        plugins: { 
+                            legend: { display: false },
+                            tooltip: {
+                                backgroundColor: 'rgba(0,0,0,0.85)',
+                                padding: 12,
+                                displayColors: false,
+                                callbacks: {
+                                    title: items => items[0].label,
+                                    label: ctx => `Close: $${ctx.parsed.y.toLocaleString(undefined, {minimumFractionDigits: 2})}`
+                                }
+                            },
+                            zoom: {
+                                pan: {
+                                    enabled: true,
+                                    mode: 'x',
+                                    modifierKey: 'ctrl',
+                                },
+                                zoom: {
+                                    wheel: {
+                                        enabled: true,
+                                        speed: 0.1
+                                    },
+                                    pinch: {
+                                        enabled: true
+                                    },
+                                    mode: 'x',
+                                }
+                            }
+                        },
                         scales: {
-                            x: { grid: { display: false }, ticks: { maxTicksLimit: 10, font: { size: 11 } } },
-                            y: { ticks: { callback: v => '$' + v.toLocaleString(), font: { size: 11 } } }
+                            x: { 
+                                grid: { display: false },
+                                ticks: { 
+                                    maxTicksLimit: 12, 
+                                    font: { size: 11 },
+                                    color: '#666'
+                                } 
+                            },
+                            y: { 
+                                type: 'linear',
+                                position: 'right',
+                                grid: { color: 'rgba(0,0,0,0.06)' },
+                                ticks: { 
+                                    callback: v => '$' + v.toLocaleString(),
+                                    font: { size: 11 },
+                                    color: '#666',
+                                    padding: 8
+                                },
+                                beginAtZero: false
+                            }
                         }
                     }
                 });
@@ -196,14 +353,209 @@ function fetchAndRenderChart(range, type) {
         .catch(err => console.error('Chart fetch error:', err));
 }
 
+function fetchAndRenderCorrelation(range) {
+    fetch(`/coinbook/api/bitcoin/metrics?range=${range}`)
+        .then(res => res.json())
+        .then(data => {
+            if (data.error) {
+                console.error('Metrics API error:', data.error);
+                return;
+            }
+            
+            const ctx = document.getElementById('correlationChart').getContext('2d');
+            if (window.correlationChartInstance) window.correlationChartInstance.destroy();
+
+            // Get price data from history endpoint for correlation
+            return fetch(`/coinbook/api/bitcoin/history?range=${range}`)
+                .then(res => res.json())
+                .then(priceData => {
+                    const labels = data.labels;
+                    const volumes = data.volumes.map(v => v / 1e9); // Convert to billions
+                    const prices = priceData.prices;
+
+                    // Calculate dynamic ranges
+                    const minPrice = Math.min(...prices.filter(p => p));
+                    const maxPrice = Math.max(...prices.filter(p => p));
+                    const minVolume = Math.min(...volumes.filter(v => v));
+                    const maxVolume = Math.max(...volumes.filter(v => v));
+
+                    window.correlationChartInstance = new Chart(ctx, {
+                        type: 'line',
+                        data: {
+                            labels: labels,
+                            datasets: [
+                                {
+                                    label: 'Price (USD)',
+                                    data: prices,
+                                    borderColor: '#f7931a',
+                                    backgroundColor: 'rgba(247,147,26,0.12)',
+                                    borderWidth: 2.5,
+                                    pointRadius: 0,
+                                    pointHoverRadius: 5,
+                                    pointHoverBackgroundColor: '#fff',
+                                    pointHoverBorderWidth: 2,
+                                    yAxisID: 'y-price',
+                                    fill: true,
+                                    tension: 0.4,
+                                    order: 2
+                                },
+                                {
+                                    label: 'Volume (B USD)',
+                                    data: volumes,
+                                    type: 'bar',
+                                    backgroundColor: 'rgba(100,149,237,0.6)',
+                                    borderColor: 'rgba(100,149,237,0.9)',
+                                    borderWidth: 0,
+                                    yAxisID: 'y-volume',
+                                    order: 1,
+                                    barThickness: 'flex',
+                                    maxBarThickness: 6
+                                }
+                            ]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            animation: {
+                                duration: 750,
+                                easing: 'easeInOutQuart'
+                            },
+                            interaction: {
+                                mode: 'index',
+                                intersect: false,
+                            },
+                            plugins: {
+                                legend: {
+                                    display: true,
+                                    position: 'top',
+                                    align: 'end',
+                                    labels: { 
+                                        font: { size: 11, weight: '600' },
+                                        boxWidth: 14,
+                                        boxHeight: 14,
+                                        padding: 15,
+                                        usePointStyle: true,
+                                        pointStyle: 'circle'
+                                    }
+                                },
+                                tooltip: {
+                                    backgroundColor: 'rgba(0,0,0,0.85)',
+                                    titleColor: '#fff',
+                                    bodyColor: '#fff',
+                                    borderColor: '#f7931a',
+                                    borderWidth: 2,
+                                    padding: 12,
+                                    displayColors: true,
+                                    callbacks: {
+                                        title: items => items[0].label,
+                                        label: function(context) {
+                                            let label = context.dataset.label || '';
+                                            if (label) label += ': ';
+                                            if (context.parsed.y !== null) {
+                                                if (context.dataset.yAxisID === 'y-price') {
+                                                    label += '$' + context.parsed.y.toLocaleString(undefined, {minimumFractionDigits: 2});
+                                                } else {
+                                                    label += '$' + context.parsed.y.toFixed(2) + 'B';
+                                                }
+                                            }
+                                            return label;
+                                        }
+                                    }
+                                },
+                                zoom: {
+                                    pan: {
+                                        enabled: true,
+                                        mode: 'x',
+                                        modifierKey: 'ctrl',
+                                    },
+                                    zoom: {
+                                        wheel: {
+                                            enabled: true,
+                                            speed: 0.1
+                                        },
+                                        pinch: {
+                                            enabled: true
+                                        },
+                                        mode: 'x',
+                                    }
+                                }
+                            },
+                            scales: {
+                                x: {
+                                    grid: { 
+                                        display: true,
+                                        color: 'rgba(0,0,0,0.04)'
+                                    },
+                                    ticks: {
+                                        maxTicksLimit: 12,
+                                        autoSkip: true,
+                                        maxRotation: 0,
+                                        font: { size: 10, weight: '500' },
+                                        color: '#666'
+                                    }
+                                },
+                                'y-price': {
+                                    type: 'linear',
+                                    position: 'left',
+                                    grid: { color: 'rgba(247,147,26,0.08)' },
+                                    min: minPrice * 0.95,
+                                    max: maxPrice * 1.05,
+                                    ticks: {
+                                        callback: v => '$' + v.toLocaleString(undefined, {maximumFractionDigits: 0}),
+                                        font: { size: 10, weight: '500' },
+                                        color: '#f7931a',
+                                        padding: 8
+                                    },
+                                    title: {
+                                        display: true,
+                                        text: 'Price (USD)',
+                                        color: '#f7931a',
+                                        font: { size: 12, weight: 'bold' },
+                                        padding: { bottom: 10 }
+                                    }
+                                },
+                                'y-volume': {
+                                    type: 'linear',
+                                    position: 'right',
+                                    grid: { display: false },
+                                    min: 0,
+                                    max: maxVolume * 1.5,
+                                    ticks: {
+                                        callback: v => '$' + v.toFixed(1) + 'B',
+                                        font: { size: 10, weight: '500' },
+                                        color: '#6495ed',
+                                        padding: 8
+                                    },
+                                    title: {
+                                        display: true,
+                                        text: 'Volume (USD)',
+                                        color: '#6495ed',
+                                        font: { size: 12, weight: 'bold' },
+                                        padding: { bottom: 10 }
+                                    }
+                                }
+                            }
+                        }
+                    });
+                });
+        })
+        .catch(err => console.error('Correlation chart error:', err));
+}
+
 window.addEventListener('DOMContentLoaded', function() {
     fetchAndRenderChart('30d', 'line');
+    fetchAndRenderCorrelation('1y');
+    
     document.getElementById('chartRange').addEventListener('change', function() {
         fetchAndRenderChart(this.value, document.getElementById('chartType').value);
     });
     document.getElementById('chartType').addEventListener('change', function() {
         fetchAndRenderChart(document.getElementById('chartRange').value, this.value);
     });
+    document.getElementById('correlationRange').addEventListener('change', function() {
+        fetchAndRenderCorrelation(this.value);
+    });
 });
+
 </script>
 {% endblock %}

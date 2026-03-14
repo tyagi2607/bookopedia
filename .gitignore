@@ -16,3 +16,10 @@ venv/
 # OS files
 .DS_Store
 Thumbs.db
+
+# One-off scripts
+fetch_bitcoin_history.py
+
+# Local secrets (use .env.example as template)
+*.env
+secrets.py
