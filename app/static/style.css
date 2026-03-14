@@ -350,6 +350,159 @@ body {
     height: 100% !important;
 }
 
+#energyChart {
+    width: 100% !important;
+    height: 100% !important;
+}
+
+/* ---- Tables ---- */
+.table-wrap {
+    border: 1px solid #e8dcc8;
+    border-radius: 12px;
+    overflow-x: auto;
+    background: #fff;
+}
+
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+    min-width: 720px;
+}
+
+.data-table th,
+.data-table td {
+    padding: 0.75rem 0.7rem;
+    text-align: left;
+    border-bottom: 1px solid #f1e6d2;
+}
+
+.data-table th {
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #7a5c2e;
+    background: #fbf6ea;
+}
+
+.data-table tbody tr:hover {
+    background: #fff6e6;
+}
+
+.range-labels {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.7rem;
+    color: #8a7a60;
+    margin-bottom: 0.25rem;
+}
+
+.range-bar {
+    height: 8px;
+    background: #f1e6d2;
+    border-radius: 999px;
+    overflow: hidden;
+    border: 1px solid #e1d2b6;
+}
+
+.range-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #d7952f 0%, #b86b1c 100%);
+}
+
+.ticker-tag {
+    display: inline-block;
+    font-weight: 700;
+    font-size: 0.75rem;
+    letter-spacing: 0.5px;
+    padding: 0.15rem 0.5rem;
+    border-radius: 999px;
+    color: #3b2f1e;
+    background: #f1e6d2;
+    border: 1px solid #e1d2b6;
+}
+
+.pill {
+    display: inline-block;
+    font-size: 0.7rem;
+    padding: 0.1rem 0.45rem;
+    border-radius: 999px;
+    background: #fff3df;
+    color: #7a5c2e;
+    border: 1px solid #e8dcc8;
+}
+
+.muted-note {
+    margin-top: 0.6rem;
+    font-size: 0.8rem;
+    color: #8a7a60;
+    font-style: italic;
+}
+
+/* ---- ETF Grid ---- */
+.etf-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+@media (min-width: 700px) {
+    .etf-grid { grid-template-columns: repeat(3, 1fr); }
+}
+
+.etf-card {
+    background: #fdfaf2;
+    border: 1px solid #e8dcc8;
+    border-radius: 12px;
+    padding: 1rem;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+}
+
+.etf-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.6rem;
+    flex-wrap: wrap;
+    margin-bottom: 0.6rem;
+}
+
+.etf-card h4 {
+    font-family: 'Merriweather', Georgia, serif;
+    font-size: 1rem;
+    color: #3b2f1e;
+    margin-bottom: 0.4rem;
+}
+
+.etf-card p {
+    font-size: 0.85rem;
+    color: #5c4a2a;
+    margin-bottom: 0.6rem;
+}
+
+.etf-meta {
+    font-size: 0.75rem;
+    color: #8a7a60;
+}
+
+/* ---- Themes ---- */
+.theme-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.theme-list li {
+    padding: 0.5rem 0.8rem;
+    border: 1px solid #e8dcc8;
+    border-radius: 10px;
+    background: #fdfaf2;
+    margin-bottom: 0.6rem;
+    font-size: 0.9rem;
+    color: #3b2f1e;
+}
+
 /* ---- Description Section ---- */
 .description-section { margin-top: 2rem; padding-top: 1rem; }
 

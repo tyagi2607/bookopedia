@@ -1,8 +1,20 @@
 import requests
 import time
+import datetime
 
 
 def get_btc_data():
+    try:
+        from app.services.mongo_price import get_cached_crypto_metrics
+        cached = get_cached_crypto_metrics('bitcoin')
+        if cached:
+            updated_at = cached.get('updated_at')
+            if hasattr(updated_at, 'date'):
+                if updated_at.date() == datetime.date.today():
+                    return cached
+    except Exception as e:
+        print(f"[Bookopedia] Could not read cached metrics: {e}")
+
     url = "https://api.coingecko.com/api/v3/coins/markets"
     params = {
         "vs_currency": "usd",
@@ -43,10 +55,10 @@ def get_btc_data():
 
             # Cache to MongoDB on success
             try:
-                from app.services.mongo_price import save_btc_metrics
-                save_btc_metrics(btc_data)
+                from app.services.mongo_price import save_crypto_metrics
+                save_crypto_metrics('bitcoin', btc_data)
             except Exception as e:
-                print(f"[Coinbook] Could not cache metrics: {e}")
+                print(f"[Bookopedia] Could not cache metrics: {e}")
 
             return btc_data
 
@@ -58,13 +70,13 @@ def get_btc_data():
             time.sleep(1)
 
     # All retries failed — try MongoDB cache
-    print("[Coinbook] All API attempts failed. Trying cached data...")
+    print("[Bookopedia] All API attempts failed. Trying cached data...")
     try:
-        from app.services.mongo_price import get_cached_btc_metrics
-        cached = get_cached_btc_metrics()
+        from app.services.mongo_price import get_cached_crypto_metrics
+        cached = get_cached_crypto_metrics('bitcoin')
         if cached:
             return cached
     except Exception as e:
-        print(f"[Coinbook] Could not load cached metrics: {e}")
+        print(f"[Bookopedia] Could not load cached metrics: {e}")
 
     return None
